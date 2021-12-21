@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "autoprefixer": "^10.4.0",
+    "cssnano": "^5.0.14",
+    "postcss": "^8.4.5",
+    "postcss-cli": "^9.1.0",
+    "postcss-preset-env": "^7.0.2",
+    "postcss-reporter": "^7.0.4",
+    "stylelint": "^14.1.0",
+    "stylelint-config-standard": "^24.0.0"
+  },
+  "name": "bulbul",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "postcss public/static/style.css -o public/compiled/style.css"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Sverreabo/bulbul.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Sverreabo/bulbul/issues"
+  },
+  "homepage": "https://github.com/Sverreabo/bulbul#readme",
+  "description": ""
+}
