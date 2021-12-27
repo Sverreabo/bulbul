@@ -1,3 +1,11 @@
+:root {
+    --bg: rgb(246, 247, 249);
+    --blue: rgb(6, 33, 43);
+    --red: rgb(172, 0, 38);
+    --green: rgb(0, 71, 69);
+    --brown: rgb(168, 131, 96);
+}
+
 * {
     box-sizing: border-box;
 }
@@ -5,10 +13,49 @@
 html,
 body {
     margin: 0;
-    height: 100vw;
 }
 
 body {
-    background-color: rgb(247 235 213);
+    background-color: var(--bg);
     font-family: Arial, Helvetica, sans-serif;
+}
+
+nav {
+    font-size: 20px;
+}
+
+#nav-links {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+#nav-links > a {
+    text-decoration: none;
+    
+}
+
+#nav-logo {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 15px;
+    width: 60%;
+    max-width: 320px;
+}
+
+#container {
+    margin: auto;
+    max-width: 1080px;
+    padding: 1%
+}
+
+article {
+    margin-top: 20px;
+}
+
+@media screen and (max-width: 560px) {
+    #nav-links {
+        flex-direction: column;
+    }
 }
