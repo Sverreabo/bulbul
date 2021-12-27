@@ -13,7 +13,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "build": "postcss public/static/style.css -o public/compiled/style.css"
+    "build": "postcss public/static/style.css -o public/compiled/style.css",
+    "dev": "npm run build && firebase serve"
   },
   "repository": {
     "type": "git",
