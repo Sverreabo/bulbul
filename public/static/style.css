@@ -50,7 +50,9 @@ nav {
 }
 
 article {
-    margin-top: 20px;
+    margin-top: 25px;
+}
+
 .flex {
     display: flex;
 }
