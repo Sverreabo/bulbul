@@ -57,13 +57,10 @@ article {
     display: flex;
 }
 
-.profil {
-    align-items: center;
-}
-
 .profil > img {
     width:30%;
     height:min-content;
+    margin-top: 16px;
     margin-right: 1%;
 }
 
