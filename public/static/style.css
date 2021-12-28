@@ -1,6 +1,6 @@
 :root {
     --bg: rgb(246, 247, 249);
-    --blue: rgb(6, 33, 43);
+    --blue: rgb(5, 24, 40);
     --red: rgb(172, 0, 38);
     --green: rgb(0, 71, 69);
     --brown: rgb(168, 131, 96);
@@ -25,14 +25,13 @@ nav {
 }
 
 #nav-links {
-    display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
 #nav-links > a {
     text-decoration: none;
-    
+    color: var(--blue);
 }
 
 #nav-logo {
@@ -51,11 +50,32 @@ nav {
 }
 
 article {
-    margin-top: 20px;
+    margin-top: 25px;
+}
+
+.flex {
+    display: flex;
+}
+
+.profil {
+    align-items: center;
+}
+
+.profil > img {
+    width:30%;
+    height:min-content;
+    margin-right: 1%;
+}
+
+span.bold {
+    font-weight: bold;
 }
 
 @media screen and (max-width: 560px) {
-    #nav-links {
+    .flex {
         flex-direction: column;
+    }
+    .profil > img {
+        width: 90%;
     }
 }
