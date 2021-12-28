@@ -1,9 +1,9 @@
 :root {
-    --bg: rgb(246, 247, 249);
-    --blue: rgb(5, 24, 40);
-    --red: rgb(172, 0, 38);
-    --green: rgb(0, 71, 69);
-    --brown: rgb(168, 131, 96);
+    --bg: rgb(246 247 249);
+    --blue: rgb(5 24 40);
+    --red: rgb(172 0 38);
+    --green: rgb(0 71 69);
+    --brown: rgb(168 131 96);
 }
 
 * {
@@ -46,7 +46,7 @@ nav {
 #container {
     margin: auto;
     max-width: 1080px;
-    padding: 1%
+    padding: 1%;
 }
 
 article {
@@ -58,8 +58,8 @@ article {
 }
 
 .profil > img {
-    width:30%;
-    height:min-content;
+    width: 30%;
+    height: min-content;
     margin-top: 16px;
     margin-right: 1%;
 }
@@ -72,6 +72,7 @@ span.bold {
     .flex {
         flex-direction: column;
     }
+
     .profil > img {
         width: 90%;
     }
