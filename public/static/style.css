@@ -24,6 +24,10 @@ nav {
     font-size: 20px;
 }
 
+h2 {
+    font-weight: normal;
+}
+
 #nav-links {
     justify-content: space-between;
     align-items: center;
@@ -64,7 +68,37 @@ article {
     margin-right: 1%;
 }
 
-span.bold {
+.gallery {
+    justify-content: space-between;
+}
+
+.gallery > div {
+    margin-bottom: 16px;
+    width: 49%;
+    padding: 16px;
+    border-radius: 4px;
+    background: var(--blue);
+    background: linear-gradient(var(--green), var(--blue));
+    color: var(--bg);
+}
+
+.gallery > div > img {
+    width: 100%;
+}
+
+.gallery > div > p > a {
+    background-color: var(--green);
+    padding: 2px;
+    border-radius: 2px;
+    color: white;
+    font-weight: normal;
+}
+
+.gallery > div > p > a:hover {
+    color: var(--blue);
+}
+
+.bold {
     font-weight: bold;
 }
 
@@ -79,5 +113,13 @@ span.bold {
 
     .profil > img {
         width: 90%;
+    }
+
+    .gallery {
+        align-items: center;
+    }
+
+    .gallery > div {
+        width: 100%;
     }
 }
