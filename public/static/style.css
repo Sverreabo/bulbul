@@ -73,6 +73,10 @@ span.bold {
         flex-direction: column;
     }
 
+    .profil {
+        align-items: center;
+    }
+
     .profil > img {
         width: 90%;
     }
