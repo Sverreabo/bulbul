@@ -28,12 +28,17 @@ h2 {
     font-weight: normal;
 }
 
+img {
+    max-width: 100%;
+}
+
 #nav-links {
     justify-content: space-between;
     align-items: center;
 }
 
 #nav-links > a {
+    padding-top: 4px;
     text-decoration: none;
     color: var(--blue);
 }
