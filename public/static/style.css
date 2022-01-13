@@ -28,6 +28,10 @@ h2 {
     font-weight: normal;
 }
 
+q {
+    font-style: italic;
+}
+
 img {
     max-width: 100%;
 }
@@ -85,12 +89,16 @@ article {
 
 .gallery > div {
     margin-bottom: 16px;
-    width: 49%;
+    width: 49.5%;
     padding: 16px;
     border-radius: 4px;
     background: var(--blue);
     background: linear-gradient(var(--green), var(--blue));
     color: var(--bg);
+}
+
+.gallery q {
+    color: rgb(190 190 190);
 }
 
 .gallery > div > img {
@@ -126,15 +134,18 @@ article {
         width: 90%;
     }
 
+    .hide-on-small {
+        display: none;
+    }
+}
+
+@media screen and (max-width: 720px) {
     .gallery {
         align-items: center;
+        flex-direction: column;
     }
 
     .gallery > div {
         width: 100%;
-    }
-
-    .hide-on-small {
-        display: none;
     }
 }
