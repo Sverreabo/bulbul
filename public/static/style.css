@@ -36,6 +36,13 @@ img {
     max-width: 100%;
 }
 
+img.vipps {
+    border-radius: 20px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 #nav-links {
     justify-content: space-between;
     align-items: center;
