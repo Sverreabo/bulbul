@@ -28,7 +28,8 @@ nav {
     font-size: 20px;
 }
 
-h2 {
+h2,
+h3 {
     font-weight: normal;
 }
 
@@ -41,11 +42,31 @@ img {
     max-width: 100%;
 }
 
-img.vipps {
-    border-radius: 20px;
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
+.profil > img {
+    width: 30%;
+    height: min-content;
+    margin-top: 16px;
+    margin-right: 16px;
+}
+
+.gallery q {
+    color: rgb(190 190 190);
+}
+
+.gallery > div > img {
+    width: 100%;
+}
+
+.gallery > div > p > a {
+    background-color: var(--green);
+    padding: 2px;
+    border-radius: 2px;
+    color: white;
+    font-weight: normal;
+}
+
+.gallery > div > p > a:hover {
+    color: var(--blue);
 }
 
 #nav-links {
@@ -82,13 +103,6 @@ article {
     display: flex;
 }
 
-.profil > img {
-    width: 30%;
-    height: min-content;
-    margin-top: 16px;
-    margin-right: 16px;
-}
-
 .profil.right > img {
     margin-right: 0;
     margin-left: 16px;
@@ -107,26 +121,6 @@ article {
     background: var(--blue);
     background: linear-gradient(var(--green), var(--blue));
     color: var(--bg);
-}
-
-.gallery q {
-    color: rgb(190 190 190);
-}
-
-.gallery > div > img {
-    width: 100%;
-}
-
-.gallery > div > p > a {
-    background-color: var(--green);
-    padding: 2px;
-    border-radius: 2px;
-    color: white;
-    font-weight: normal;
-}
-
-.gallery > div > p > a:hover {
-    color: var(--blue);
 }
 
 .bold {
