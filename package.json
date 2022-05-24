@@ -14,7 +14,7 @@
   "main": "index.js",
   "scripts": {
     "build": "postcss public/static/style.css -o public/compiled/style.css",
-    "dev": "npm run build && firebase serve"
+    "dev": "npm run build && firebase emulators:start"
   },
   "repository": {
     "type": "git",
