@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="nb">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Betalinger</title>
+    <link rel="stylesheet" type="text/css" href="compiled/style.css">
+    <link rel="icon" type="image/x-icon" href="images/bulbul-icon.png">
+
+    <script src="static/betalinger.js" defer></script>
+    <style>
+        td,
+        th,
+        table {
+            border: 2px solid grey;
+            border-collapse: collapse;
+            word-wrap: break-word;
+            padding: 0.4rem;
+        }
+
+        table button {
+            font-size: 1rem;
+            width: 100%;
+        }
+
+        table {
+            table-layout: fixed;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="alert-wait">
+        <div>
+            <p>Vennligst vent...</p>
+        </div>
+    </div>
+    <div id="container">
+        <div id="login">
+            <p>Bruk kode for å logge inn:</p>
+            <input id="login-code" autocomplete="off" placeholder="Din kode">
+            <button id="login-button">Logg inn</button>
+        </div>
+        <div id="main-content" style="display: none">
+            <button onclick="set_tab(0)">Se reserverte betalinger</button>
+            <button onclick="set_tab(1)">Se fullførte betalinger</button>
+            <div class="flex">
+                <div style="flex: 0 0 58%; margin-right: 2%;">
+                    <p id="data-label"></p>
+                    <table id="overview-data"></table>
+                </div>
+                <div style="flex: 0 0 40%;">
+                    <p>Detaljer</p>
+                    <table id="detailed-data"></table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

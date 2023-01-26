@@ -11,8 +11,8 @@
 
     <script type="module">
         // Import the functions you need from the SDKs you need
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-app.js";
-        import { getFunctions, httpsCallable, connectFunctionsEmulator } from "https://www.gstatic.com/firebasejs/9.6.10/firebase-functions.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
+        import { getFunctions, httpsCallable, connectFunctionsEmulator } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-functions.js";
         // TODO: Add SDKs for Firebase products that you want to use
         // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -25,26 +25,57 @@
             storageBucket: "bulbul-200b6.appspot.com",
             messagingSenderId: "987611185564",
             appId: "1:987611185564:web:84b22867525d3d02c68859",
-            measurementId: "G-KRW7Q8GLH7"
+            measurementId: "G-KRW7Q8GLH7",
         };
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const functions = getFunctions(app);
+        const functions = getFunctions(app, "europe-west2");
         connectFunctionsEmulator(functions, "localhost", 5001);
-        const helloWorld = httpsCallable(functions, 'helloWorld');
-        helloWorld({ text: "hello, meine" })
-            .then((result) => {
-                // Read result of the Cloud Function.
-                /** @type {any} */
-                const data = result.data;
-                const sanitizedMessage = data.text;
-                console.log(sanitizedMessage)
-            });
+        const init_purchase = httpsCallable(functions, "init_purchase");
+        init_purchase();
+
+        window.addEventListener("load", () => {
+            const BUTTON_PAY = document.getElementById("pay-with-vipps");
+            BUTTON_PAY.addEventListener("click", () => { click_pay(BUTTON_PAY); });
+        });
+
+        function click_pay(BUTTON_PAY) {
+            BUTTON_PAY.removeEventListener("click", click_pay);
+
+            const ALERT_WAIT = document.getElementById("alert-wait");
+            ALERT_WAIT.style.visibility = "visible";
+
+            let t0 = Date.now();
+
+            init_purchase({ item: "mehlum" })
+                .then((result) => {
+                    console.log("Completed in ", (Date.now() - t0) / 1000);
+                    const data = result.data;
+
+                    ALERT_WAIT.style.visibility = "hidden";
+
+                    if ("text" in data) {
+                        window.open(data.text);
+                    } else {
+                        console.error(data);
+                        window.alert("Beklager, noe gikk galt");
+                    }
+                })
+                .catch((error) => {
+                    ALERT_WAIT.style.visibility = "hidden";
+                    window.alert("Beklager, noe gikk galt");
+                });
+        }
     </script>
 </head>
 
 <body>
+    <div id="alert-wait">
+        <div>
+            <p>Vennligst vent...</p>
+        </div>
+    </div>
     <div id="container">
         <nav>
             <img id="nav-logo" src="images/bulbul-web.webp" width="640" height="390" alt="">
@@ -63,7 +94,6 @@
                 </a>
             </div>
         </nav>
-
 
         <div class="flex profil right">
             <div>
@@ -84,6 +114,7 @@
                         posten. Da kommer et tillegg på kr 50 i frakt. Totalprisen blir i så fall kr 99.</p>
                     <p>Kjøp med Vipps igjennom nettsiden vil snart bli tilgjengelig, men foreløpig må du kjøpe boka
                         personlig.</p>
+                    <img src="images/pay_with_vipps.png" id="pay-with-vipps">
                     <p>Forventet leveringstid er på 5 til 7 virkedager.</p>
                     <p>Det er 14 dagers angrerett. </p>
                     <p>Ved mangel, kan reklamasjon skje senest to år etter at kjøper
