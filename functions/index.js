@@ -1,5 +1,6 @@
 const functions = require("firebase-functions");
 const fetch = require("node-fetch");
+const nodemailer = require('nodemailer');
 const { randomUUID, timingSafeEqual } = require("crypto");
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore, FieldPath } = require('firebase-admin/firestore');
@@ -9,13 +10,18 @@ const firestore = getFirestore();
 
 let access_token;
 
-const TEST_URL = "https://apitest.vipps.no";
+const TEST_API_URL = "https://apitest.vipps.no";
 const TEST_MERCHANT_ID = "234390";
 
-const TOKEN_EXPIRY_EXTRA = 30; //Seconds
-const PENDING_PURCHASES_EXPIRY_TOT_MS = 900000; //15min * 60s * 1000ms == 900000ms
+const PROD_API_URL = "https://api.vipps.no";
+const PROD_MERCHANT_ID = "753617";
 
-const BASE_URL_SELF = "https://c1d8-193-156-161-155.ngrok.io";
+const GMAIL_PASSWORD = process.env.GMAIL_PASSWORD;
+const GMAIL_ADDRESS = "bulbul.forlag@gmail.com";
+
+const TOKEN_EXPIRY_EXTRA = 45; //Seconds
+
+const BASE_URL_SELF = "https://bulbul.no";
 
 const ITEMS = {
     "mehlum": {
@@ -32,11 +38,13 @@ if (process.env.FUNCTIONS_EMULATOR) {
 
 functions.logger.log("Production:", prod);
 
-const api_url = TEST_URL;
-const client_id = process.env.TEST_CLIENT_ID;
-const client_secret = process.env.TEST_CLIENT_SECRET;
-const ocp_key = process.env.TEST_OCP_KEY;
-const merchant_id = TEST_MERCHANT_ID;
+const MAIL_MOTTAKERE = prod ? "sverreabo@gmail.com" : "sverreabo@gmail.com";
+
+const api_url = prod ? PROD_API_URL : TEST_API_URL;
+const client_id = prod ? process.env.PROD_CLIENT_ID : process.env.TEST_CLIENT_ID;
+const client_secret = prod ? process.env.PROD_CLIENT_SECRET : process.env.TEST_CLIENT_SECRET;
+const ocp_key = prod ? process.env.PROD_OCP_KEY : process.env.TEST_OCP_KEY;
+const merchant_id = prod ? PROD_MERCHANT_ID : TEST_MERCHANT_ID;
 
 
 function get_time() {
@@ -80,7 +88,7 @@ async function get_access_token(api_url, client_id, client_secret, ocp_key, merc
     let response_json = await fetch(api_url + "/accessToken/get", { "method": "POST", "headers": headers })
         .then(res => { return res.json(); });
     await access_tokens_db.add(response_json);
-    functions.logger.log(response_json, { structuredData: true });
+    functions.logger.info("token from Vipps");
     return response_json;
 }
 
@@ -107,8 +115,8 @@ async function complete_order(item, api_url, ocp_key, access_token, merchant_id)
                 {
                     "isDefault": "Y",
                     "shippingCost": 0,
-                    "shippingMethod": "Levering i Tønsberg",
-                    "shippingMethodId": "levering-tonsberg",
+                    "shippingMethod": "Henting i Tønsberg",
+                    "shippingMethodId": "henting-tonsberg",
                 },
                 {
                     "isDefault": "N",
@@ -143,7 +151,7 @@ async function complete_order(item, api_url, ocp_key, access_token, merchant_id)
 
 exports.init_purchase = functions
     .region("europe-west2")
-    .runWith({ secrets: ["TEST_CLIENT_ID", "TEST_CLIENT_SECRET", "TEST_OCP_KEY"] })
+    .runWith({ secrets: ["TEST_CLIENT_ID", "TEST_CLIENT_SECRET", "TEST_OCP_KEY", "PROD_CLIENT_ID", "PROD_CLIENT_SECRET", "PROD_OCP_KEY"] })
     .https.onCall(async (data, context) => {
         if (data === null) {
             return;
@@ -167,8 +175,23 @@ function compare(a, b) {
     return timingSafeEqual(Buffer.from(a), Buffer.from(b));
 }
 
+async function send_mail(data) {
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.gmail.com',
+        port: 587,
+        auth: {
+            user: GMAIL_ADDRESS,
+            pass: GMAIL_PASSWORD,
+        },
+    });
+    data.from = '"BULBUL forlag" <' + GMAIL_ADDRESS + ">";
+
+    await transporter.sendMail(data);
+}
+
 exports.purchase_callback = functions
     .region("europe-west2")
+    .runWith({ secrets: ["GMAIL_PASSWORD"] })
     .https.onRequest(async (request, response) => {
         const delete_url = "/functions/purchase-callback/v2/consents";
         if (matches_url(request.url, delete_url)) {
@@ -177,11 +200,12 @@ exports.purchase_callback = functions
 
             let to_delete = [];
             let path = new FieldPath("userDetails", "userId");
-            let order_id_in = request.url.substring(delete_url.length + 1);
-            (await reserved_purchases_db.where(path, "==", order_id_in).get()).forEach((document) => {
+            let user_id_in = request.url.substring(delete_url.length + 1);
+
+            (await reserved_purchases_db.where(path, "==", user_id_in).get()).forEach((document) => {
                 to_delete.push(document.ref.delete());
             });
-            (await captured_purchases_db.where(path, "==", order_id_in).get()).forEach((document) => {
+            (await captured_purchases_db.where(path, "==", user_id_in).get()).forEach((document) => {
                 to_delete.push(document.ref.delete());
             });
 
@@ -211,18 +235,36 @@ exports.purchase_callback = functions
 
                     let reserved_purchases_db = await firestore.collection("reserved_purchases");
                     await reserved_purchases_db.doc(order_id).set(new_purchase);
+
+                    await send_mail({
+                        to: MAIL_MOTTAKERE,
+                        subject: "Ny bestilling (" + order_id + ")",
+                        html:
+                            new_purchase.userDetails.firstName + " " + new_purchase.userDetails.lastName + " har bestilt " + item_text +
+                            ".<br><br>Gå inn på <a href='https://bulbul.no/betalinger'>bulbul.no/betalinger</a> for flere detaljer."
+                        ,
+                    });
+
+                    await send_mail({
+                        to: new_purchase.userDetails.email,
+                        subject: "Ordrebekreftelse (" + order_id + ")",
+                        html:
+                            "Dette er en bekreftelse på din bestilling av " + item_text + ".<br><br>" +
+                            "Leveringsmetode: " + new_purchase.shippingDetails.shippingMethod + "<br>" +
+                            "Adresse: <br>" +
+                            new_purchase.shippingDetails.address.addressLine1 + "<br>" +
+                            (new_purchase.shippingDetails.address.addressLine2 === null ? "" : new_purchase.shippingDetails.address.addressLine2 + "<br>") +
+                            new_purchase.shippingDetails.address.zipCode + " " + new_purchase.shippingDetails.address.city + "<br>" +
+                            "<br>For spørsmål eller reklamasjon, ta kontakt:<br>" +
+                            "Thorleif Bugge, tlf 95859223, <a href='mailto: thorleif.bugge@usn.no'>thorleif.bugge@usn.no</a><br>" +
+                            "Norunn Askeland, tlf 97198351, <a href='mailto:norunn.askeland@usn.no'>norunn.askeland@usn.no</a><br><br>" +
+                            "Mvh BULBUL forlag"
+                        ,
+                    });
                 }
-                response.send();
+                response.status(200).send();
             } else {
                 response.status(400).send();
-            }
-            to_delete = [];
-            (await pending_purchases_db.where("time", "<", Date.now() + PENDING_PURCHASES_EXPIRY_TOT_MS).get()).forEach((document) => {
-                to_delete.push(document.ref.delete());
-            });
-            functions.logger.log("Deleting " + to_delete.length);
-            for (x of to_delete) {
-                await x;
             }
 
         } else {
@@ -246,8 +288,6 @@ async function capture_payment(transaction_text, order_id, api_url, ocp_key, acc
             "transactionText": transaction_text,
         }
     };
-    functions.logger.log(headers);
-    functions.logger.log(body);
 
     let response = await fetch(api_url + "/ecomm/v2/payments/" + order_id + "/capture/",
         { "method": "POST", "headers": headers, "body": JSON.stringify(body) });
@@ -303,10 +343,10 @@ async function refund_payment(transaction_text, order_id, api_url, ocp_key, acce
     let response = await fetch(api_url + "/ecomm/v2/payments/" + order_id + "/refund/",
         { "method": "POST", "headers": headers, "body": JSON.stringify(body) });
     let response_json = await response.json();
-    functions.logger.log(response_json);
     if (response.status === 200) {
         return true;
     }
+    functions.logger.warn(response_json);
     return false;
 }
 
@@ -321,10 +361,9 @@ async function collection_data(navn) {
 
 exports.fetch_data = functions
     .region("europe-west2")
-    .runWith({ secrets: ["CLIENT_ACCESS_CODE", "TEST_CLIENT_ID", "TEST_CLIENT_SECRET", "TEST_OCP_KEY"] })
+    .runWith({ secrets: ["CLIENT_ACCESS_CODE", "GMAIL_PASSWORD", "TEST_CLIENT_ID", "TEST_CLIENT_SECRET", "TEST_OCP_KEY", "PROD_CLIENT_ID", "PROD_CLIENT_SECRET", "PROD_OCP_KEY"] })
     .https.onRequest(async (request, response) => {
         const CLIENT_ACCESS_CODE = process.env.CLIENT_ACCESS_CODE;
-        functions.logger.debug(CLIENT_ACCESS_CODE);
         const BODY = JSON.parse(request.body);
         const same_length = BODY["access_code"].length === CLIENT_ACCESS_CODE.length;
 
@@ -367,11 +406,23 @@ exports.fetch_data = functions
                 access_token = await get_access_token(api_url, client_id, client_secret, ocp_key, merchant_id);
                 let success = await cancel_payment(transaction_text, order_id, api_url, ocp_key, access_token, merchant_id);
                 if (success) {
+                    await send_mail({
+                        to: order.userDetails.email,
+                        subject: "Kansellering av bestilling (" + order_id + ")",
+                        html:
+                            "Bestillingen din av " + transaction_text + " er kansellert. Du får altså tilbake pengene.<br>" +
+                            "<br>Har du spørsmål, ta kontakt:<br>" +
+                            "Thorleif Bugge, tlf 95859223, <a href='mailto: thorleif.bugge@usn.no'>thorleif.bugge@usn.no</a><br>" +
+                            "Norunn Askeland, tlf 97198351, <a href='mailto:norunn.askeland@usn.no'>norunn.askeland@usn.no</a><br><br>" +
+                            "Mvh BULBUL forlag"
+                        ,
+                    });
                     await reserved_purchases_db.doc(order_id).delete();
                     response.json({ "status": "success" }).status(200).send();
                 } else {
                     response.json({ "status": "error" }).status(400).send();
                 }
+
             } else if (QUERY === "refund_payment") {
                 const order_id = BODY["orderId"];
 
@@ -382,6 +433,17 @@ exports.fetch_data = functions
                 access_token = await get_access_token(api_url, client_id, client_secret, ocp_key, merchant_id);
                 let success = await refund_payment(transaction_text, order_id, api_url, ocp_key, access_token, merchant_id);
                 if (success) {
+                    await send_mail({
+                        to: order.userDetails.email,
+                        subject: "Refusjon av bestilling (" + order_id + ")",
+                        html:
+                            "Ditt kjøp av " + transaction_text + " er refundert. Du får altså tilbake pengene.<br>" +
+                            "<br>Har du spørsmål, ta kontakt:<br>" +
+                            "Thorleif Bugge, tlf 95859223, <a href='mailto: thorleif.bugge@usn.no'>thorleif.bugge@usn.no</a><br>" +
+                            "Norunn Askeland, tlf 97198351, <a href='mailto:norunn.askeland@usn.no'>norunn.askeland@usn.no</a><br><br>" +
+                            "Mvh BULBUL forlag"
+                        ,
+                    });
                     await captured_purchases_db.doc(order_id).delete();
                     response.json({ "status": "success" }).status(200).send();
                 } else {

@@ -43,14 +43,21 @@ async function login() {
     await update_data();
 }
 
-
-function display_data(data, table) {
+// Unsanitized : 0 -> None. 1 -> Last column.  2 -> Last row
+function display_data(data, table, unsanitized = 0) {
     table.innerHTML = "";
-    for (arr of data.reverse()) {
-        var row = table.insertRow(0);
-        for (let i = 0; i < arr.length; i++) {
-            let cell = row.insertCell(i);
-            cell.innerHTML = arr[i];
+
+    for (let i = data.length - 1; i >= 0; i--) {
+        let row = table.insertRow(0);
+        let arr = data[i];
+
+        for (let j = 0; j < arr.length; j++) {
+            let cell = row.insertCell(j);
+            if ((unsanitized === 2 && i === data.length - 1) || (unsanitized === 1 && j === arr.length - 1)) {
+                cell.innerHTML = arr[j];
+            } else {
+                cell.innerText = arr[j];
+            }
         }
     }
 }
@@ -104,7 +111,7 @@ function view_data() {
             "<button onclick=view_details('" + purchase["orderId"] + "')>Vis detaljer</button>",
         ]);
     }
-    display_data(result, TABLE_OVERVIEW);
+    display_data(result, TABLE_OVERVIEW, 1);
 }
 
 function view_details(order_id) {
@@ -141,7 +148,7 @@ function view_details(order_id) {
             "<button onclick=refund_payment('" + order_id + "')>Refunder betaling</button>",
         ]);
     }
-    display_data(data, TABLE_DETAILS);
+    display_data(data, TABLE_DETAILS, 2);
 }
 
 async function capture_payment(order_id) {
