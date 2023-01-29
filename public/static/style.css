@@ -42,7 +42,7 @@ img {
     max-width: 100%;
 }
 
-.profil > img {
+.profil>img {
     width: 30%;
     height: min-content;
     margin-top: 16px;
@@ -53,11 +53,11 @@ img {
     color: rgb(190 190 190);
 }
 
-.gallery > div > img {
+.gallery>div>img {
     width: 100%;
 }
 
-.gallery > div > p > a {
+.gallery>div>p>a {
     background-color: var(--green);
     padding: 2px;
     border-radius: 2px;
@@ -65,7 +65,7 @@ img {
     font-weight: normal;
 }
 
-.gallery > div > p > a:hover {
+.gallery>div>p>a:hover {
     color: var(--blue);
 }
 
@@ -74,7 +74,7 @@ img {
     align-items: center;
 }
 
-#nav-links > a {
+#nav-links>a {
     padding: 2px;
     text-decoration: none;
     color: var(--blue);
@@ -95,6 +95,29 @@ img {
     padding: 1%;
 }
 
+#pay-with-vipps {
+    max-width: 16rem;
+    cursor: pointer;
+}
+
+#alert-wait {
+    visibility: hidden;
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(20, 20, 20, 0.5);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#alert-wait>div {
+    background-color: rgb(50, 50, 50);
+    padding: 1rem;
+    color: var(--bg);
+}
+
 article {
     margin-top: 25px;
 }
@@ -103,7 +126,7 @@ article {
     display: flex;
 }
 
-.profil.right > img {
+.profil.right>img {
     margin-right: 0;
     margin-left: 16px;
     margin-top: 32px;
@@ -113,7 +136,7 @@ article {
     justify-content: space-between;
 }
 
-.gallery > div {
+.gallery>div {
     margin-bottom: 16px;
     width: 49.5%;
     padding: 16px;
@@ -128,7 +151,7 @@ article {
 }
 
 @media screen and (max-width: 560px) {
-    #nav-links > a {
+    #nav-links>a {
         text-align: center;
         width: 75%;
     }
@@ -141,7 +164,7 @@ article {
         align-items: center;
     }
 
-    .profil > img {
+    .profil>img {
         width: 90%;
     }
 
@@ -156,7 +179,7 @@ article {
         flex-direction: column;
     }
 
-    .gallery > div {
+    .gallery>div {
         width: 100%;
     }
 }

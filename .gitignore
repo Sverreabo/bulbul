@@ -67,3 +67,5 @@ node_modules/
 
 #Compiled css
 public/compiled
+
+emulator-data

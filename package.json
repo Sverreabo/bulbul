@@ -7,14 +7,15 @@
     "postcss-preset-env": "^7.0.2",
     "postcss-reporter": "^7.0.4",
     "stylelint": "^14.1.0",
-    "stylelint-config-standard": "^24.0.0"
+    "stylelint-config-standard": "^24.0.0",
+    "uuid": "^9.0.0"
   },
   "name": "bulbul",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "build": "postcss public/static/style.css -o public/compiled/style.css",
-    "dev": "npm run build && firebase emulators:start"
+    "dev": "firebase emulators:start --import emulator-data --export-on-exit"
   },
   "repository": {
     "type": "git",
