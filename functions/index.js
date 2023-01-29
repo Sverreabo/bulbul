@@ -38,7 +38,7 @@ if (process.env.FUNCTIONS_EMULATOR) {
 
 functions.logger.log("Production:", prod);
 
-const MAIL_MOTTAKERE = prod ? "sverreabo@gmail.com" : "sverreabo@gmail.com";
+const MAIL_MOTTAKERE = prod ? "thorleif.bugge@usn.no, norunn.askeland@usn.no, sverreabo@gmail.com" : "sverreabo@gmail.com";
 
 const api_url = prod ? PROD_API_URL : TEST_API_URL;
 const client_id = prod ? process.env.PROD_CLIENT_ID : process.env.TEST_CLIENT_ID;
