@@ -17,7 +17,7 @@ const PROD_API_URL = "https://api.vipps.no";
 const PROD_MERCHANT_ID = "753617";
 
 const GMAIL_PASSWORD = process.env.GMAIL_PASSWORD;
-const GMAIL_ADDRESS = "bulbul.forlag@gmail.com";
+const MAIL_ADDRESS = "info@bulbul.no";
 
 const TOKEN_EXPIRY_EXTRA = 45; //Seconds
 
@@ -177,14 +177,14 @@ function compare(a, b) {
 
 async function send_mail(data) {
     const transporter = nodemailer.createTransport({
-        host: 'smtp.gmail.com',
-        port: 587,
+        host: 'send.one.com',
+        port: 465,
         auth: {
-            user: GMAIL_ADDRESS,
+            user: MAIL_ADDRESS,
             pass: GMAIL_PASSWORD,
         },
     });
-    data.from = '"BULBUL forlag" <' + GMAIL_ADDRESS + ">";
+    data.from = '"BULBUL forlag" <' + MAIL_ADDRESS + ">";
 
     await transporter.sendMail(data);
 }
