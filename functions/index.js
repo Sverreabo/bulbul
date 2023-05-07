@@ -29,6 +29,11 @@ const ITEMS = {
         "shipping_cost": 50, //Kr
         "text": "Tre krimfortellinger om Svend Foyn",
     },
+    "kvinnelinjer": {
+        "price": 14900,
+        "shipping_cost": 50,
+        "text": "Kvinnelinjer",
+    }
 };
 
 let prod = true;

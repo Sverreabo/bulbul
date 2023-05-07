@@ -53,6 +53,10 @@ img {
     color: rgb(190 190 190);
 }
 
+.gallery {
+    flex-wrap: wrap;
+}
+
 .gallery>div>img {
     width: 100%;
 }
@@ -95,7 +99,7 @@ img {
     padding: 1%;
 }
 
-#pay-with-vipps {
+.betal-vipps {
     max-width: 16rem;
     cursor: pointer;
 }
