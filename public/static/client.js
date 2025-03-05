@@ -49,7 +49,7 @@ function start_betaling(item) {
             ALERT_WAIT.style.visibility = "hidden";
 
             if ("text" in data) {
-                window.open(data.text);
+                window.location.replace(data.text);
             } else {
                 console.error(data);
                 window.alert("Beklager, noe gikk galt");
