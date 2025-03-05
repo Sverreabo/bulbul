@@ -96,7 +96,7 @@ img {
 #container {
     margin: auto;
     max-width: 1080px;
-    padding: 1%;
+    padding: 2%;
 }
 
 .betal-vipps {
@@ -177,8 +177,10 @@ article {
     }
 }
 
-@media screen and (max-width: 720px) {
+@media screen and (max-width: 800px) {
     .gallery {
+        margin: auto;
+        max-width: 560px;
         align-items: center;
         flex-direction: column;
     }
