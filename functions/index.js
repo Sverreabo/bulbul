@@ -33,6 +33,11 @@ const ITEMS = {
         "price": 14900,
         "shipping_cost": 50,
         "text": "Kvinnelinjer",
+    },
+    "mangfoldige": {
+        "price": 19900,
+        "shipping_cost": 50,
+        "text": "Mangfoldige historier"
     }
 };
 
