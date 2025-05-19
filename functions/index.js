@@ -38,6 +38,11 @@ const ITEMS = {
         "price": 19900,
         "shipping_cost": 50,
         "text": "Mangfoldige historier"
+    },
+    "kunsten-skrive": {
+        "price": 19900,
+        "shipping_cost": 50,
+        "text": "Kunsten å skrive"
     }
 };
 
