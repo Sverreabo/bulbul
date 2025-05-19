@@ -125,15 +125,15 @@ async function complete_order(item, api_url, ocp_key, access_token, merchant_id)
                 {
                     "isDefault": "Y",
                     "shippingCost": 0,
-                    "shippingMethod": "Henting i Tønsberg",
+                    "shippingMethod": "Hent boka selv i Tønsberg",
                     "shippingMethodId": "henting-tonsberg",
                 },
-                {
-                    "isDefault": "N",
-                    "shippingCost": item["shipping_cost"],
-                    "shippingMethod": "Sending i posten",
-                    "shippingMethodId": "sending-posten",
-                },
+                // {
+                //     "isDefault": "N",
+                //     "shippingCost": item["shipping_cost"],
+                //     "shippingMethod": "Sending i posten",
+                //     "shippingMethodId": "sending-posten",
+                // },
             ],
         },
         "transaction": {
