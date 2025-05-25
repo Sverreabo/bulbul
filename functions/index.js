@@ -33,6 +33,16 @@ const ITEMS = {
         "price": 14900,
         "shipping_cost": 50,
         "text": "Kvinnelinjer",
+    },
+    "mangfoldige": {
+        "price": 19900,
+        "shipping_cost": 50,
+        "text": "Mangfoldige historier"
+    },
+    "kunsten-skrive": {
+        "price": 29900,
+        "shipping_cost": 50,
+        "text": "Kunsten å skrive"
     }
 };
 
@@ -120,15 +130,15 @@ async function complete_order(item, api_url, ocp_key, access_token, merchant_id)
                 {
                     "isDefault": "Y",
                     "shippingCost": 0,
-                    "shippingMethod": "Henting i Tønsberg",
+                    "shippingMethod": "Hent boka selv i Tønsberg",
                     "shippingMethodId": "henting-tonsberg",
                 },
-                {
-                    "isDefault": "N",
-                    "shippingCost": item["shipping_cost"],
-                    "shippingMethod": "Sending i posten",
-                    "shippingMethodId": "sending-posten",
-                },
+                // {
+                //     "isDefault": "N",
+                //     "shippingCost": item["shipping_cost"],
+                //     "shippingMethod": "Sending i posten",
+                //     "shippingMethodId": "sending-posten",
+                // },
             ],
         },
         "transaction": {
