@@ -1,4 +1,6 @@
-const functions = require("firebase-functions");
+const { onCall, onRequest} = require("firebase-functions/v2/https");
+const {logger} = require("firebase-functions/v2");
+
 const fetch = require("node-fetch");
 const nodemailer = require('nodemailer');
 const { randomUUID, timingSafeEqual } = require("crypto");
@@ -51,7 +53,7 @@ if (process.env.FUNCTIONS_EMULATOR) {
     prod = false;
 }
 
-functions.logger.log("Production:", prod);
+logger.log("Production:", prod);
 
 const MAIL_MOTTAKERE = prod ? "thorleif.bugge@usn.no, norunn.askeland@usn.no, sverreabo@gmail.com" : "sverreabo@gmail.com";
 
@@ -69,7 +71,7 @@ function get_time() {
 async function get_access_token(api_url, client_id, client_secret, ocp_key, merchant_id) {
     let time = get_time();
     if (access_token !== undefined && access_token["expires_on"] - time > TOKEN_EXPIRY_EXTRA) {
-        functions.logger.info("token cached");
+        logger.info("token cached");
         return access_token;
     }
 
@@ -90,7 +92,7 @@ async function get_access_token(api_url, client_id, client_secret, ocp_key, merc
         await access_tokens_db.doc(id).delete();
     }
     if (new_access_token !== undefined) {
-        functions.logger.info("token from Firestore");
+        logger.info("token from Firestore");
         return new_access_token;
     }
 
@@ -103,7 +105,7 @@ async function get_access_token(api_url, client_id, client_secret, ocp_key, merc
     let response_json = await fetch(api_url + "/accessToken/get", { "method": "POST", "headers": headers })
         .then(res => { return res.json(); });
     await access_tokens_db.add(response_json);
-    functions.logger.info("token from Vipps");
+    logger.info("token from Vipps");
     return response_json;
 }
 
@@ -164,15 +166,19 @@ async function complete_order(item, api_url, ocp_key, access_token, merchant_id)
     return response;
 }
 
-exports.init_purchase = functions
-    .region("europe-west2")
-    .runWith({ secrets: ["TEST_CLIENT_ID", "TEST_CLIENT_SECRET", "TEST_OCP_KEY", "PROD_CLIENT_ID", "PROD_CLIENT_SECRET", "PROD_OCP_KEY"] })
-    .https.onCall(async (data, context) => {
+exports.init_purchase = onCall(
+    {
+        region: "europe-west2",
+        cors: true,
+        secrets: ["TEST_CLIENT_ID", "TEST_CLIENT_SECRET", "TEST_OCP_KEY", "PROD_CLIENT_ID", "PROD_CLIENT_SECRET", "PROD_OCP_KEY"]
+    },
+    async (data, context) => {
+        data = data["data"];
         if (data === null) {
             return;
         }
-
         if (!(data["item"] in ITEMS)) {
+            logger.log(data);
             return { error: "No such item for sale" };
         }
         const item = ITEMS[data["item"]];
@@ -180,7 +186,9 @@ exports.init_purchase = functions
         access_token = await get_access_token(api_url, client_id, client_secret, ocp_key, merchant_id);
         order = await complete_order(item, api_url, ocp_key, access_token, merchant_id);
         return { text: order["url"] };
-    });
+    }
+);
+
 
 function matches_url(url, to_match) {
     return url.substring(0, to_match.length) === to_match;
@@ -204,10 +212,13 @@ async function send_mail(data) {
     await transporter.sendMail(data);
 }
 
-exports.purchase_callback = functions
-    .region("europe-west2")
-    .runWith({ secrets: ["GMAIL_PASSWORD"] })
-    .https.onRequest(async (request, response) => {
+exports.purchase_callback = onRequest(
+    {
+        region: "europe-west2",
+        cors: true,
+        secrets: ["GMAIL_PASSWORD"]
+    },
+    async (request, response) => {
         const delete_url = "/functions/purchase-callback/v2/consents";
         if (matches_url(request.url, delete_url)) {
             let reserved_purchases_db = await firestore.collection("reserved_purchases");
@@ -224,7 +235,7 @@ exports.purchase_callback = functions
                 to_delete.push(document.ref.delete());
             });
 
-            functions.logger.debug("Deleting " + to_delete.length + " document(s)");
+            logger.debug("Deleting " + to_delete.length + " document(s)");
             for (x of to_delete) {
                 await x;
             }
@@ -237,7 +248,7 @@ exports.purchase_callback = functions
             let correct_authToken = order_doc_data.get("authToken");
 
             if (compare(correct_authToken, request.headers["authorization"])) {
-                functions.logger.debug("Authtoken correct");
+                logger.debug("Authtoken correct");
                 let item_text = order_doc_data.get("transactionText");
                 let order_time = order_doc_data.get("time");
                 await order_doc_ref.delete();
@@ -285,7 +296,8 @@ exports.purchase_callback = functions
         } else {
             response.status(404).send();
         }
-    });
+    }
+);
 
 async function capture_payment(transaction_text, order_id, api_url, ocp_key, access_token, merchant_id) {
     const headers = {
@@ -310,7 +322,7 @@ async function capture_payment(transaction_text, order_id, api_url, ocp_key, acc
     if (response.status === 200 && response_json["transactionInfo"]["status"] === "Captured") {
         return response_json;
     }
-    functions.logger.warn(response_json);
+    logger.warn(response_json);
     return false;
 }
 
@@ -334,7 +346,7 @@ async function cancel_payment(transaction_text, order_id, api_url, ocp_key, acce
     if (response.status === 200) {
         return true;
     }
-    functions.logger.warn(await response.json());
+    logger.warn(await response.json());
     return false;
 }
 
@@ -361,7 +373,7 @@ async function refund_payment(transaction_text, order_id, api_url, ocp_key, acce
     if (response.status === 200) {
         return true;
     }
-    functions.logger.warn(response_json);
+    logger.warn(response_json);
     return false;
 }
 
@@ -374,10 +386,13 @@ async function collection_data(navn) {
     return result;
 }
 
-exports.fetch_data = functions
-    .region("europe-west2")
-    .runWith({ secrets: ["CLIENT_ACCESS_CODE", "GMAIL_PASSWORD", "TEST_CLIENT_ID", "TEST_CLIENT_SECRET", "TEST_OCP_KEY", "PROD_CLIENT_ID", "PROD_CLIENT_SECRET", "PROD_OCP_KEY"] })
-    .https.onRequest(async (request, response) => {
+exports.fetch_data = onRequest(
+    {
+        region: "europe-west2",
+        cors: true,
+        secrets: ["CLIENT_ACCESS_CODE", "GMAIL_PASSWORD", "TEST_CLIENT_ID", "TEST_CLIENT_SECRET", "TEST_OCP_KEY", "PROD_CLIENT_ID", "PROD_CLIENT_SECRET", "PROD_OCP_KEY"]
+    },
+    async (request, response) => {
         const CLIENT_ACCESS_CODE = process.env.CLIENT_ACCESS_CODE;
         const BODY = JSON.parse(request.body);
         const same_length = BODY["access_code"].length === CLIENT_ACCESS_CODE.length;
@@ -471,4 +486,5 @@ exports.fetch_data = functions
         } else {
             response.status(401).send();
         }
-    });
+    }
+);
