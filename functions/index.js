@@ -178,7 +178,6 @@ exports.init_purchase = onCall(
             return;
         }
         if (!(data["item"] in ITEMS)) {
-            logger.log(data);
             return { error: "No such item for sale" };
         }
         const item = ITEMS[data["item"]];
